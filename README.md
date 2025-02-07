@@ -4,6 +4,8 @@ Simple todo app, build with:
 
 - gorm
 
+- go cdk (cloud development kit)
+
 - sqlite
 
 - htmx
