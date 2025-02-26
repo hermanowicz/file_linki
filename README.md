@@ -1,13 +1,9 @@
-Simple todo app, build with:
+App providing simple app to upload file.
+and provide short lived links, (around 15 min.)
 
-- fiber
+---
 
-- gorm
-
-- go cdk (cloud development kit)
-
-- sqlite
-
-- htmx
-
-- picoCss
+- go chi
+- sqlx
+- go cdk
+- smtp (ses)

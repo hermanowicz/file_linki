@@ -1,3 +1,3 @@
 module github.com/hermanowicz/file_linki
 
-go 1.23.5
+go 1.24
