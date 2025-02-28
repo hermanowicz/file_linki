@@ -3,7 +3,7 @@ and provide short lived links, (around 15 min.)
 
 ---
 
-- go chi
+- go fiber
 - sqlx
 - go cdk
 - smtp (ses)

@@ -3,40 +3,46 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
+	recover "github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
 	fmt.Println("Hello, World! from file_linki")
 
-	r := chi.NewRouter()
+	db, err := sqlx.Open("sqlite3", ":memory:")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 
-	r.Use(middleware.StripSlashes)
-	r.Use(middleware.Compress(5))
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	err = db.Ping()
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello, World! from linki app"))
-	})
-
-	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("pong"))
-	})
-
-	s := &http.Server{
+	app := fiber.New(fiber.Config{
+		Prefork:      false,
 		IdleTimeout:  10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 180 * time.Second,
-		Handler:      r,
-		Addr:         ":8080",
-	}
+	})
 
-	log.Fatal(s.ListenAndServe())
+	app.Use(logger.New())
+	app.Use(compress.New())
+	app.Use(recover.New())
+
+	app.Get("/metrics", monitor.New())
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"messege": "hello, world!",
+		})
+	})
+
+	app.Listen(":8080")
 }
